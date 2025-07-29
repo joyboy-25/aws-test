@@ -1,98 +1,52 @@
-import random, os
-import graph
+import random
 
+from hangman_words import word_list
+from hangman_art import stages, logo
 
-cards = {"2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "A": [1, 11], "K": 10, "Q": 10,
-         "J": 10}
+#word_list = hangman_words.word_list
 
+Lives = 6
+print(logo)
+chosen_word = random.choice(word_list)
+print(chosen_word)
 
-def card_distribution(score):
-    random_card = random.choice(list(cards.keys()))
-    if score < 11 and random_card == "A":
-        score += cards[random_card][1]
-    elif score >= 11 and random_card == "A":
-        score += cards[random_card][0]
-    else:
-        score += cards[random_card]
+placeholder = ""
+word_length = len(chosen_word)
+for position in range(word_length):
+    placeholder += "_"
+print("Word to guess: " + placeholder)
 
-    return random_card, score
+game_over = False
+correct_letters = []
+while not game_over:
+    print(f"******{Lives}/6 LIVES LEFT*******")
+    guess = input("Guess a letter: ").lower()
 
+    if guess in correct_letters:
+        print(f"You've already guessed {guess}")
 
-def print_cards(final, user_score, pc_score, user_inhand, pc_inhand):
-    print()
-    if final:
-        print(f"Your Final Cards: {user_inhand}, Current Score: {user_score}")
-        print(f"PC's Final Cards: {pc_inhand}, PC's Score: {pc_score}")
-    else:
-        print(f"Your Cards: {user_inhand}, Current Score: {user_score}")
-        print(f"PC's Card: {pc_inhand[0]}")
-
-
-def compare_score(user, pc):
-    if user == 21 and pc == 21 or user == pc:
-        print(graph.draw)
-    elif pc == 21:
-        print("PC got the Blackjack")
-        print(graph.lose)
-    elif user == 21:
-        print("You got the Blackjack")
-        print(graph.win)
-    elif user > 21:
-        print("You went over. PC Win")
-        print(graph.lose)
-    elif pc > 21:
-        print("PC went over")
-        print(graph.win)
-    elif user > pc:
-        print(graph.win)
-    else:
-        print("PC Win")
-        print(graph.lose)
-
-
-def blackjack():
-    print(graph.logo)
-    user_inhand = []
-    user_score = 0
-    pc_inhand = []
-    pc_score = 0
-
-    should_play = True
-    while should_play:
-        for _ in range(2):
-            user_card, user_score = card_distribution(user_score)
-            user_inhand.append(user_card)
-
-            pc_card, pc_score = card_distribution(pc_score)
-            pc_inhand.append(pc_card)
-
-        print_cards(False, user_score, pc_score, user_inhand, pc_inhand)
-
-        while user_score < 21:
-            choice = input("Type 'Y' to HIT another card or 'N' to PASS - ").lower()
-            if choice == 'y':
-                user_card, user_score = card_distribution(user_score)
-                user_inhand.append(user_card)
-            else:
-                while pc_score <= 16:
-                    pc_card, pc_score = card_distribution(pc_score)
-                    pc_inhand.append(pc_card)
-                break
-            print_cards(False, user_score, pc_score, user_inhand, pc_inhand)
-
-        print_cards(True, user_score, pc_score, user_inhand, pc_inhand)
-
-        compare_score(user_score, pc_score)
-
-        round_choice = input("Type 'Y' to play another round or type 'N' to exit - ").lower()
-        if round_choice == 'y':
-            clear()
-            blackjack()
+    display = ""
+    for letter in chosen_word:
+        if letter == guess:
+            display += letter
+            correct_letters.append(guess)
+        elif letter in correct_letters:
+            display += letter
         else:
-            should_play = False
-            print("Thank you for playing the game. Hope you liked it. Goodbye!")
+            display += "_"
+    print("Word to guess:" + display)
+    if guess not in chosen_word:
 
+        Lives -= 1
+        print(f"You guessed {guess}, that's not in the word. You lose a life.")
+        if Lives == 0:
+            game_over = True
+            print(f"*****IT WAS {chosen_word}! You lose.*****")
 
-clear = lambda: os.system('cls')
+    if "_" not in display:
+        game_over = True
+        print("*****You win.*****")
 
-blackjack()
+    if 0 <= Lives <= 7:
+
+     print(stages[6 - Lives])
