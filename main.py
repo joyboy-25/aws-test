@@ -1,52 +1,38 @@
+from turtle import Turtle, Screen
 import random
 
-from hangman_words import word_list
-from hangman_art import stages, logo
+is_race_on = False
+screen = Screen()
+screen.setup(width=500, height=400)
+user_bet = screen.textinput(title="Make your bet", prompt="Which turtle will win the race? Enter a color: ")
+colors = ["red", "orange", "yellow", "green", "blue", "purple"]
+y_positions = [-70, -40, -10, 20, 50, 80]
+all_turtles = []
 
-#word_list = hangman_words.word_list
+#Create 6 turtles
+for turtle_index in range(0, 6):
+    new_turtle = Turtle(shape="turtle")
+    new_turtle.penup()
+    new_turtle.color(colors[turtle_index])
+    new_turtle.goto(x=-230, y=y_positions[turtle_index])
+    all_turtles.append(new_turtle)
 
-Lives = 6
-print(logo)
-chosen_word = random.choice(word_list)
-print(chosen_word)
+if user_bet:
+    is_race_on = True
 
-placeholder = ""
-word_length = len(chosen_word)
-for position in range(word_length):
-    placeholder += "_"
-print("Word to guess: " + placeholder)
+while is_race_on:
+    for turtle in all_turtles:
+        #230 is 250 - half the width of the turtle.
+        if turtle.xcor() > 230:
+            is_race_on = False
+            winning_color = turtle.pencolor()
+            if winning_color == user_bet:
+                print(f"You've won! The {winning_color} turtle is the winner!")
+            else:
+                print(f"You've lost! The {winning_color} turtle is the winner!")
 
-game_over = False
-correct_letters = []
-while not game_over:
-    print(f"******{Lives}/6 LIVES LEFT*******")
-    guess = input("Guess a letter: ").lower()
+        #Make each turtle move a random amount.
+        rand_distance = random.randint(0, 10)
+        turtle.forward(rand_distance)
 
-    if guess in correct_letters:
-        print(f"You've already guessed {guess}")
-
-    display = ""
-    for letter in chosen_word:
-        if letter == guess:
-            display += letter
-            correct_letters.append(guess)
-        elif letter in correct_letters:
-            display += letter
-        else:
-            display += "_"
-    print("Word to guess:" + display)
-    if guess not in chosen_word:
-
-        Lives -= 1
-        print(f"You guessed {guess}, that's not in the word. You lose a life.")
-        if Lives == 0:
-            game_over = True
-            print(f"*****IT WAS {chosen_word}! You lose.*****")
-
-    if "_" not in display:
-        game_over = True
-        print("*****You win.*****")
-
-    if 0 <= Lives <= 7:
-
-     print(stages[6 - Lives])
+screen.exitonclick()
